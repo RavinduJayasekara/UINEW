@@ -16,6 +16,17 @@ const Quote = (props) => {
     tCColor = "",
     tTColor = "";
 
+  const sec = props.route.params.security;
+  const cN = props.route.params.companyname;
+
+  const buyHandler = (sec, cName) => {
+    props.navigation.navigate("BuySell", {
+      bOrS: "Buy",
+      securityCode: sec,
+      securityName: cName,
+    });
+  };
+
   if (parseFloat(props.route.params.perchange) > 0) {
     bPColor = Colors.positive;
     tPColor = Colors.white;
@@ -52,10 +63,12 @@ const Quote = (props) => {
           paddingVertical: 5,
         }}
       >
-        <Text style={{ fontWeight: "bold", fontSize: 20 }}>
-          {props.route.params.security}
-        </Text>
-        <Button size="small" status="success">
+        <Text style={{ fontWeight: "bold", fontSize: 20 }}>{sec}</Text>
+        <Button
+          size="small"
+          status="success"
+          onPress={buyHandler.bind(this, sec, cN)}
+        >
           BUY
         </Button>
       </Layout>

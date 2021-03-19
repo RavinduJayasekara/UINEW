@@ -39,11 +39,11 @@ export const fetchAllSec = () => {
 
       dispatch({
         type: GET_JUST_SEC,
-        justSec: object.data.watch,
+        justSec: object.data.items,
       });
     } catch (err) {
       console.log(err);
-      throw err;
+      // throw err;
     }
   };
 };

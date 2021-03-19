@@ -63,6 +63,7 @@ const WatchList = (props) => {
               props.navigation.navigate("QuoteTabNavigator", {
                 params: {
                   security: itemData.item.security,
+                  companyname: itemData.item.companyname,
                   tradeprice: itemData.item.tradeprice,
                   perchange: itemData.item.perchange,
                   netchange: itemData.item.netchange,

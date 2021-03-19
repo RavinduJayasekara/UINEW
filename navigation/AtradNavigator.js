@@ -35,6 +35,7 @@ import PortfolioSummary from "../Screens/Portfolio/Portfolio";
 import OrderList from "../Screens/Portfolio/OrderList";
 import { useDispatch } from "react-redux";
 import * as ScreenOrientation from "expo-screen-orientation";
+import BuySell from "../Screens/Quote/BuySell";
 
 const changeScreenOrientationToPortrait = async () => {
   await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
@@ -289,6 +290,38 @@ const PortfolioTabNavigator = (props) => {
   );
 };
 
+const QuoteS = createStackNavigator();
+
+const QuoteSNav = (props) => {
+  return (
+    <QuoteS.Navigator headerMode="none">
+      <QuoteS.Screen
+        name={"Quote"}
+        component={Quote}
+        initialParams={{
+          security: props.route.params.security,
+          companyname: props.route.params.companyname,
+          tradeprice: props.route.params.tradeprice,
+          perchange: props.route.params.perchange,
+          netchange: props.route.params.netchange,
+          bidprice: props.route.params.bidprice,
+          askprice: props.route.params.askprice,
+          bidqty: props.route.params.bidqty,
+          askqty: props.route.params.askqty,
+          vwap: props.route.params.vwap,
+          lowpx: props.route.params.lowpx,
+          highpx: props.route.params.highpx,
+          totvolume: props.route.params.totvolume,
+          tottrades: props.route.params.tottrades,
+          totturnover: props.route.params.totturnover,
+          lasttradedtime: props.route.params.lasttradedtime,
+        }}
+      />
+      <QuoteS.Screen name={"BuySell"} component={BuySell} />
+    </QuoteS.Navigator>
+  );
+};
+
 const QuoteTab = createMaterialTopTabNavigator();
 
 const QuoteTabNavigator = (props) => {
@@ -298,24 +331,10 @@ const QuoteTabNavigator = (props) => {
       tabBar={(props) => <QuoteTabBar {...props} />}
     >
       <QuoteTab.Screen
-        name={"Quote"}
-        component={Quote}
+        name={"QuoteSNav"}
+        component={QuoteSNav}
         initialParams={{
-          security: props.route.params.params.security,
-          tradeprice: props.route.params.params.tradeprice,
-          perchange: props.route.params.params.perchange,
-          netchange: props.route.params.params.netchange,
-          bidprice: props.route.params.params.bidprice,
-          askprice: props.route.params.params.askprice,
-          bidqty: props.route.params.params.bidqty,
-          askqty: props.route.params.params.askqty,
-          vwap: props.route.params.params.vwap,
-          lowpx: props.route.params.params.lowpx,
-          highpx: props.route.params.params.highpx,
-          totvolume: props.route.params.params.totvolume,
-          tottrades: props.route.params.params.tottrades,
-          totturnover: props.route.params.params.totturnover,
-          lasttradedtime: props.route.params.params.lasttradedtime,
+          props: props.route.params.params,
         }}
       />
       <QuoteTab.Screen

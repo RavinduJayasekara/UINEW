@@ -13,8 +13,6 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-community/picker";
 
-import * as loadingclientsActions from "../../store/action/loadingclients";
-import * as dropdownsecuritiesActions from "../../store/action/dropdownsecurities";
 import Colors from "../../constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import Card from "../../components/UI/Card";
@@ -93,7 +91,7 @@ const BuySell = (props) => {
   const allClients = useSelector((state) => state.loadingclients.allClients);
   const dispatch = useDispatch();
   const allSecurities = useSelector(
-    (state) => state.dropdownsecurities.securityDetails
+    (state) => state.allSecurities.justSecurities
   );
   const [isLoading, setIsLoading] = useState(false);
   const [security, setSecurity] = useState(props.route.params.securityCode);
@@ -113,7 +111,6 @@ const BuySell = (props) => {
   const [netValue, setNetValue] = useState(0);
   const [tif, setTif] = useState([]);
   const [tifType, setTifType] = useState("");
-  // const [tifType, setTifType] = useState("");
   const [selectedTifDropDownDays, setSelectedTifDropDownDays] = useState("");
   const [orderStatus, setOrderStatus] = useState("");
 

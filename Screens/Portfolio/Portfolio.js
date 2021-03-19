@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View, Animated } from "react-native";
 
 import Links from "../../Links/Links";
 import Portfolio from "../../Links/Portfolio";
@@ -60,11 +60,39 @@ const PortfolioSummary = (props) => {
   const [cCodeVal, setCCodeVal] = useState("");
   const [portfolios, setPortfolios] = useState([]);
   let textColorGain = "";
+  const [loaded, setLoaded] = useState(false);
   const [visible, setVisible] = useState(false);
+  // const visible = true;
   const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
   let textColorUnr = "";
   // let displayValue = "";
   const [displayValue, setDisplayValue] = useState("");
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const fadeIn = () => {
+    // Will change fadeAnim value to 1 in 5 seconds
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 5000,
+    }).start();
+  };
+
+  const fadeOut = () => {
+    // Will change fadeAnim value to 0 in 5 seconds
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 5000,
+    }).start();
+  };
+
+  const mV = () => {
+    setVisible(true);
+  };
+
+  const miV = () => {
+    setVisible(false);
+  };
 
   const allClients = useSelector((state) => state.loadingclients.allClients);
 
@@ -145,16 +173,8 @@ const PortfolioSummary = (props) => {
     textColorUnr = "purple";
   }
 
-  const setMV = () => {
-    setVisible(true);
-  };
-
-  const setMIV = () => {
-    setVisible(false);
-  };
-
   const changeItemHandler = async (itemDataVal, itemDataLabel) => {
-    setMV();
+    setVisible(true);
     setDisplayValue(itemDataLabel);
     const selectedClient = allClients.find(
       (cli) => cli.clientCode === itemDataVal
@@ -165,13 +185,30 @@ const PortfolioSummary = (props) => {
     const cInitials = selectedClient.initials;
 
     const linkUrl = generateLink(cCode, bId, cLastName, cInitials);
-    await fetchPortfolioDetails(linkUrl);
-    setMIV();
+    // await
+    // fetchPortfolioDetails(linkUrl);a
+
+    console.log(itemDataLabel, itemDataVal);
+
+    // setTimeout(() => {
+    await fetchPortfolioDetails(linkUrl)
+      .then(() => setVisible(false))
+      .catch((e) => console.log(e));
+    // .then(() => setVisible(false))
+    // .catch((e) => console.log(e));
+    // console.log("Ravindu");
+    // }, 5000);
   };
 
   const renderOption = (itemData) => (
     <SelectItem title={itemData.label} key={itemData.label} />
   );
+
+  // const func1 = () => {
+  //   setVisible(false);
+  //   setLoaded(false);
+  //   console.log("ravindu");
+  // };
 
   const renderItem = (itemData) => {
     const netGL = parseFloat(itemData.item.netGain).toFixed(2);
@@ -189,7 +226,6 @@ const PortfolioSummary = (props) => {
             avgPrice={agP}
           />
         )}
-        // accessoryLeft={}
         style={{
           backgroundColor:
             itemData.index % 2 === 0 ? Colors.white : Colors.lGray,
@@ -227,140 +263,159 @@ const PortfolioSummary = (props) => {
   }
 
   return (
-    <Layout style={styles.container}>
-      <Layout style={{ marginVertical: 5 }}>
-        {clientArray.length !== 0 ? (
-          <Select
-            size="large"
-            status="basic"
-            selectedIndex={selectedIndex}
-            onSelect={(index) => {
-              setSelectedIndex(index);
-              changeItemHandler(
-                clientArray[index.row].value,
-                clientArray[index.row].label
-              );
-            }}
-            value={
-              displayValue === ""
-                ? changeItemHandler(
-                    clientArray[selectedIndex.row].value,
-                    clientArray[selectedIndex.row].label
-                  )
-                : displayValue
-            }
-          >
-            {clientArray.map(renderOption)}
-          </Select>
-        ) : (
-          <View style={styles.centered}>
-            <ActivityIndicator size="large" color={Colors.primary} />
-          </View>
-        )}
-      </Layout>
-      <Divider />
-      <Layout
-        style={{
-          flexDirection: "row",
-          width: "100%",
-          marginHorizontal: 10,
-        }}
+    <View style={{ flex: 1 }}>
+      {/* <Animated.View
+        style={[
+          styles.fadingContainer,
+          {
+            opacity: fadeAnim, // Bind opacity to animated value
+          },
+        ]}
       >
-        <Layout style={styles.detailContainer}>
-          <Layout style={styles.contentContainer}>
-            <Text style={styles.tText}>Total Cost</Text>
-            {loadingDetails ? (
-              <Layout>
-                <Spinner size="small" color={Colors.primary} />
-              </Layout>
-            ) : (
-              <Text>
-                {totCost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
+        <Text style={styles.fadingText}>Fading View!</Text> */}
+
+      <Layout style={styles.container}>
+        <Layout style={{ marginVertical: 5 }}>
+          {clientArray.length !== 0 ? (
+            <Select
+              size="large"
+              status="basic"
+              selectedIndex={selectedIndex}
+              onSelect={(index) => {
+                setSelectedIndex(index);
+                changeItemHandler(
+                  clientArray[index.row].value,
+                  clientArray[index.row].label
+                );
+              }}
+              value={
+                displayValue === ""
+                  ? changeItemHandler(
+                      clientArray[selectedIndex.row].value,
+                      clientArray[selectedIndex.row].label
+                    )
+                  : displayValue
+              }
+            >
+              {clientArray.map(renderOption)}
+            </Select>
+          ) : (
+            <View style={styles.centered}>
+              <ActivityIndicator size="large" color={Colors.primary} />
+            </View>
+          )}
+        </Layout>
+        <Divider />
+        <Layout
+          style={{
+            flexDirection: "row",
+            width: "100%",
+            marginHorizontal: 10,
+          }}
+        >
+          <Layout style={styles.detailContainer}>
+            <Layout style={styles.contentContainer}>
+              <Text style={styles.tText}>Total Cost</Text>
+              {loadingDetails ? (
+                <Layout>
+                  <Spinner size="small" color={Colors.primary} />
+                </Layout>
+              ) : (
+                <Text>
+                  {totCost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Layout style={styles.contentContainer}>
+              <Text style={styles.tText}>Market Value</Text>
+              {loadingDetails ? (
+                <Layout>
+                  <Spinner size="small" color={Colors.primary} />
+                </Layout>
+              ) : (
+                <Text>
+                  {marketValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Layout style={styles.contentContainer}>
+              <Text style={styles.tText}>Sales Commision</Text>
+              {loadingDetails ? (
+                <Layout>
+                  <Spinner size="small" color={Colors.primary} />
+                </Layout>
+              ) : (
+                <Text>
+                  {commission.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
           </Layout>
-          <Layout style={styles.contentContainer}>
-            <Text style={styles.tText}>Market Value</Text>
-            {loadingDetails ? (
-              <Layout>
-                <Spinner size="small" color={Colors.primary} />
-              </Layout>
-            ) : (
-              <Text>
-                {marketValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Layout style={styles.contentContainer}>
-            <Text style={styles.tText}>Sales Commision</Text>
-            {loadingDetails ? (
-              <Layout>
-                <Spinner size="small" color={Colors.primary} />
-              </Layout>
-            ) : (
-              <Text>
-                {commission.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
+          <Layout style={styles.detailContainer}>
+            <Layout style={styles.contentContainer}>
+              <Text style={styles.tText}>Sales Proceeds</Text>
+              {loadingDetails ? (
+                <Layout>
+                  <Spinner size="small" color={Colors.primary} />
+                </Layout>
+              ) : (
+                <Text>
+                  {salesProceeds
+                    .toString()
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Layout style={styles.contentContainer}>
+              <Text style={styles.tText}>Unrealized Gain/(Loss)</Text>
+              {loadingDetails ? (
+                <Layout>
+                  <Spinner size="small" color={Colors.primary} />
+                </Layout>
+              ) : (
+                <Text style={{ color: textColorGain }}>
+                  {netGain.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Layout style={styles.contentContainer}>
+              <Text style={styles.tText}>Unr Today Gain/(Loss)</Text>
+              {loadingDetails ? (
+                <Layout>
+                  <Spinner size="small" color={Colors.primary} />
+                </Layout>
+              ) : (
+                <Text style={{ color: textColorUnr }}>
+                  {unrTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
           </Layout>
         </Layout>
-        <Layout style={styles.detailContainer}>
-          <Layout style={styles.contentContainer}>
-            <Text style={styles.tText}>Sales Proceeds</Text>
-            {loadingDetails ? (
-              <Layout>
-                <Spinner size="small" color={Colors.primary} />
-              </Layout>
-            ) : (
-              <Text>
-                {salesProceeds.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Layout style={styles.contentContainer}>
-            <Text style={styles.tText}>Unrealized Gain/(Loss)</Text>
-            {loadingDetails ? (
-              <Layout>
-                <Spinner size="small" color={Colors.primary} />
-              </Layout>
-            ) : (
-              <Text style={{ color: textColorGain }}>
-                {netGain.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Layout style={styles.contentContainer}>
-            <Text style={styles.tText}>Unr Today Gain/(Loss)</Text>
-            {loadingDetails ? (
-              <Layout>
-                <Spinner size="small" color={Colors.primary} />
-              </Layout>
-            ) : (
-              <Text style={{ color: textColorUnr }}>
-                {unrTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-        </Layout>
+        <Divider />
+        <List
+          style={{ flex: 1 }}
+          ListHeaderComponent={ListHeaderComponent}
+          ListEmptyComponent={() => (
+            <Layout>
+              <List
+                data={portfolios}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.security}
+              />
+            </Layout>
+          )}
+        />
       </Layout>
-      <Divider />
-      <List
-        style={{ flex: 1 }}
-        ListHeaderComponent={ListHeaderComponent}
-        ListEmptyComponent={() => (
-          <Layout>
-            <List
-              data={portfolios}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.security}
-            />
-          </Layout>
-        )}
-      />
-      <Modal visible={visible}>
+      {/* </Animated.View> */}
+      <Modal
+        visible={visible}
+        backdropStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+      >
         <Spinner size="large" />
+        <Text>Loading</Text>
       </Modal>
-    </Layout>
+    </View>
   );
 };
 
@@ -370,6 +425,16 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+  },
+  fadingContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "powderblue",
+  },
+  fadingText: {
+    fontSize: 28,
+    textAlign: "center",
+    margin: 10,
   },
   dropDownContainer: {
     width: "97%",

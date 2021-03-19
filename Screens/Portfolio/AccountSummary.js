@@ -139,25 +139,7 @@ const AccountSummary = (props) => {
 
       let replaceString = resData.replace(/'/g, '"');
       let object = JSON.parse(replaceString);
-      return object;
-    } catch (error) {
-      throw error;
-    }
-  };
 
-  const changeItemHandler = async (itemDataVal, itemDataLabel) => {
-    setDisplayValue(itemDataLabel);
-    const selectedClient = allClients.find(
-      (cli) => cli.clientCode === itemDataVal
-    );
-
-    const cCode = selectedClient.clientCode;
-    const bId = selectedClient.brokerId;
-    const cAcnId = selectedClient.clientacntid;
-
-    const generalLink = generateLink(cCode, bId, cAcnId);
-
-    Promise.resolve(getInformation(generalLink)).then((object) => {
       let totCostPort = "";
       let totMarketValPort = "";
       let totGainLossPort = "";
@@ -201,7 +183,40 @@ const AccountSummary = (props) => {
       setMarginAmountDebt(object.data.clientSummary.marginAmountD);
       setCashBlock(object.data.clientSummary.cashBlock);
       setMarginBlock(object.data.clientSummary.marginBlock);
-    });
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const changeItemHandler = async (itemDataVal, itemDataLabel) => {
+    setVisible(true);
+    setDisplayValue(itemDataLabel);
+    const selectedClient = allClients.find(
+      (cli) => cli.clientCode === itemDataVal
+    );
+
+    const cCode = selectedClient.clientCode;
+    const bId = selectedClient.brokerId;
+    const cAcnId = selectedClient.clientacntid;
+
+    const generalLink = generateLink(cCode, bId, cAcnId);
+
+    await getInformation(generalLink).then(() => setVisible(false));
+    // .then(() => setVisible(false))
+    // .catch((e) => console.log(e));
+
+    // setLoadingDetails(true);
+    // setTimeout(() => {
+    //   setVisible(false);
+    //   getInformation(generalLink);
+    //   console.log("ravindu");
+    // }, 5000);
+
+    // .then(() => {
+    //   setLoadingDetails(false);
+    // })
+    // .catch((e) => console.log(e));
+    //   console.log("Ravindu");
   };
 
   const renderOption = (itemData) => (
@@ -218,191 +233,209 @@ const AccountSummary = (props) => {
 
   return (
     <View style={styles.container}>
-      <Layout style={styles.dropDownContainer} level="1">
-        {clientArray.length !== 0 ? (
-          <Select
-            size="large"
-            status="basic"
-            selectedIndex={selectedIndex}
-            onSelect={(index) => {
-              setSelectedIndex(index);
-              changeItemHandler(
-                clientArray[index.row].value,
-                clientArray[index.row].label
-              );
-            }}
-            value={
-              displayValue === ""
-                ? changeItemHandler(
-                    clientArray[selectedIndex.row].value,
-                    clientArray[selectedIndex.row].label
-                  )
-                : displayValue
-            }
-          >
-            {clientArray.map(renderOption)}
-          </Select>
-        ) : (
-          <View style={styles.centered}>
-            <ActivityIndicator size="large" color={Colors.primary} />
-          </View>
-        )}
-      </Layout>
-      <Divider />
-      <Layout style={{ flex: 1 }}>
-        <ScrollView>
-          <Layout style={styles.contentContainer}>
-            <Text>Total Cost of the Portfolio</Text>
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text>
-                {totCostPort.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-          <Layout style={styles.contentContainer}>
-            <Text>Total Market Value of the Portfolio</Text>
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text>
-                {totMarketPort.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-          <Layout style={styles.contentContainer}>
-            <Text>Total Gain/Loss</Text>
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text style={{ color: textColorTotGL }}>
-                {totGL.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-          <Layout style={styles.contentContainer}>
-            <Text>Cash Balance</Text>
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text style={{ color: textColorCashBalance }}>
-                {cashBalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-          <Layout style={styles.contentContainer}>
-            <Text>Buying Power</Text>
+      <Layout style={styles.container}>
+        <Layout style={styles.dropDownContainer} level="1">
+          {clientArray.length !== 0 ? (
+            <Select
+              size="large"
+              status="basic"
+              selectedIndex={selectedIndex}
+              onSelect={(index) => {
+                setSelectedIndex(index);
+                changeItemHandler(
+                  clientArray[index.row].value,
+                  clientArray[index.row].label
+                );
+              }}
+              value={
+                displayValue === ""
+                  ? changeItemHandler(
+                      clientArray[selectedIndex.row].value,
+                      clientArray[selectedIndex.row].label
+                    )
+                  : displayValue
+              }
+            >
+              {clientArray.map(renderOption)}
+            </Select>
+          ) : (
+            <View style={styles.centered}>
+              <ActivityIndicator size="large" color={Colors.primary} />
+            </View>
+          )}
+        </Layout>
+        <Divider />
+        <Layout style={{ flex: 1 }}>
+          <ScrollView>
+            <Layout style={styles.contentContainer}>
+              <Text>Total Cost of the Portfolio</Text>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text>
+                  {totCostPort.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+            <Layout style={styles.contentContainer}>
+              <Text>Total Market Value of the Portfolio</Text>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text>
+                  {totMarketPort
+                    .toString()
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+            <Layout style={styles.contentContainer}>
+              <Text>Total Gain/Loss</Text>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text style={{ color: textColorTotGL }}>
+                  {totGL.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+            <Layout style={styles.contentContainer}>
+              <Text>Cash Balance</Text>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text style={{ color: textColorCashBalance }}>
+                  {cashBalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+            <Layout style={styles.contentContainer}>
+              <Text>Buying Power</Text>
 
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text style={{ color: textColorBuyingPower }}>
-                {buyingPower.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-          <Layout style={styles.contentContainer}>
-            <Text>Total Pending Buy Orders Value</Text>
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text>
-                {pendingBuyOrders
-                  .toString()
-                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-          <Layout style={styles.contentContainer}>
-            <Text>Exposure Precentage</Text>
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text>
-                {percentage.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-          <Layout style={styles.contentContainer}>
-            <Text>Exposure Margin Amount-Equity</Text>
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text>
-                {marginAmountEquity
-                  .toString()
-                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-          <Layout style={styles.contentContainer}>
-            <Text>Exposure Margin Amount-Debt</Text>
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text>
-                {marginAmountDebt
-                  .toString()
-                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-          <Layout style={styles.contentContainer}>
-            <Text>Cash Block Amount</Text>
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text>
-                {cashBlock.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-          <Layout style={styles.contentContainer}>
-            <Text>Margin Block Amount</Text>
-            {loadingDetails ? (
-              <View>
-                <ActivityIndicator size="small" color={Colors.primary} />
-              </View>
-            ) : (
-              <Text>
-                {marginBlock.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              </Text>
-            )}
-          </Layout>
-          <Divider />
-        </ScrollView>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text style={{ color: textColorBuyingPower }}>
+                  {buyingPower.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+            <Layout style={styles.contentContainer}>
+              <Text>Total Pending Buy Orders Value</Text>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text>
+                  {pendingBuyOrders
+                    .toString()
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+            <Layout style={styles.contentContainer}>
+              <Text>Exposure Precentage</Text>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text>
+                  {percentage.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+            <Layout style={styles.contentContainer}>
+              <Text>Exposure Margin Amount-Equity</Text>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text>
+                  {marginAmountEquity
+                    .toString()
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+            <Layout style={styles.contentContainer}>
+              <Text>Exposure Margin Amount-Debt</Text>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text>
+                  {marginAmountDebt
+                    .toString()
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+            <Layout style={styles.contentContainer}>
+              <Text>Cash Block Amount</Text>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text>
+                  {cashBlock.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+            <Layout style={styles.contentContainer}>
+              <Text>Margin Block Amount</Text>
+              {loadingDetails ? (
+                <View>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                </View>
+              ) : (
+                <Text>
+                  {marginBlock.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                </Text>
+              )}
+            </Layout>
+            <Divider />
+          </ScrollView>
+        </Layout>
       </Layout>
+
+      <Modal visible={visible}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <Spinner size="large" />
+          <Text>Now Loading</Text>
+        </View>
+      </Modal>
     </View>
   );
 };

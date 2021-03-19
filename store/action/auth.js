@@ -25,6 +25,7 @@ export const signIn = (username, password) => {
       dispatch({ type: SIGN_IN, token: resData, uName: username });
       dispatch(loadingClients.fetchClients());
       dispatch(dropdownsecuritiesActions.fetchDropDownAllSecurities());
+      dispatch(dropdownsecuritiesActions.fetchAllSec());
     } else {
       dispatch({ type: SIGN_OUT });
     }
