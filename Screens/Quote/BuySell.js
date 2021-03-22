@@ -3,21 +3,25 @@ import {
   StyleSheet,
   View,
   ActivityIndicator,
-  Text,
   TextInput,
-  TouchableOpacity,
   Keyboard,
   TouchableWithoutFeedback,
   Button,
   Alert,
 } from "react-native";
 import { Picker } from "@react-native-community/picker";
+import {
+  Toggle,
+  Text,
+  Select,
+  SelectItem,
+  IndexPath,
+} from "@ui-kitten/components";
 
 import Colors from "../../constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import Card from "../../components/UI/Card";
 import Links from "../../Links/Links";
-import TitleText from "../../components/UI/TitleText";
 
 const generateUrlBuyOrSell = (
   clientCode,
@@ -98,21 +102,29 @@ const BuySell = (props) => {
   const [companyName, setCompanyName] = useState(
     props.route.params.securityName
   );
-  const [buySell, setBuySell] = useState("");
+  const [buySell, setBuySell] = useState(
+    props.route.params.bOrS === "Buy" ? true : false
+  );
   const [buyPow, setBuyPow] = useState("");
   const [client, setClient] = useState("");
   const clientDropDown = [];
   const tifDropDown = [];
   const [tifDropDownDays, setTifDropDownDays] = useState([]);
   const [quantity, setQuantity] = useState(0);
+  const [displayValue, setDisplayValue] = useState("");
   const [price, setPrice] = useState(0);
   const [commision, setCommision] = useState(0);
   const [orderValue, setOrderValue] = useState(0);
   const [netValue, setNetValue] = useState(0);
   const [tif, setTif] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(new IndexPath(0));
   const [tifType, setTifType] = useState("");
   const [selectedTifDropDownDays, setSelectedTifDropDownDays] = useState("");
   const [orderStatus, setOrderStatus] = useState("");
+  const [tradePrice, setTradePrice] = props.route.params.tradeP;
+  const [netChange, setnetChange] = props.route.params.netC;
+  const [perChange, setPerChange] = props.route.params.perC;
+  // const primaryToggleState = useToggleState();
 
   for (const key in allClients) {
     clientDropDown.push({
@@ -125,7 +137,7 @@ const BuySell = (props) => {
       value: allClients[key].clientCode,
     });
   }
-
+  console.log(companyName);
   const securityDropDown = [];
 
   for (const key in allSecurities) {
@@ -196,6 +208,10 @@ const BuySell = (props) => {
     }
   });
 
+  const renderOption = (itemData) => (
+    <SelectItem title={itemData.label} key={itemData.label} />
+  );
+
   useEffect(() => {
     let isMounted = true;
     getMarketDetails().then((tif) => {
@@ -230,15 +246,15 @@ const BuySell = (props) => {
     setCompanyName(selectedSecurity.securityDes);
   };
 
-  const changeClientHandler = (itemData) => {
-    setClient(itemData);
+  const changeClientHandler = (itemDataVal, itemDataLabel) => {
+    setDisplayValue(itemDataLabel);
     const selectedClient = allClients.find(
-      (cli) => cli.clientCode === itemData
+      (cli) => cli.clientCode === itemDataVal
     );
     const clientAccount = selectedClient.clientacntid;
     const brokerId = selectedClient.brokerId;
     const linkUrl = generateLinkToGetInformation(
-      itemData,
+      itemDataVal,
       security,
       clientAccount,
       brokerId
@@ -388,20 +404,24 @@ const BuySell = (props) => {
     }
   };
 
+  const onCheckedChange = (isChecked) => {
+    setBuySell(isChecked);
+  };
+
   const buySellAlertHandler = () => {
     if (price != 0 && quantity != 0) {
       Alert.alert(
         "Are you sure?",
-        buySell === "1"
+        buySell
           ? "Are you sure you want to buy?"
           : "Are you sure you want to sell?",
         [
           {
-            text: buySell === "1" ? "Buy" : "Sell",
+            text: buySell ? "Buy" : "Sell",
             onPress: () => {
               buySellHandler();
             },
-            style: buySell === "1" ? "default" : "destructive",
+            style: buySell ? "default" : "destructive",
           },
           {
             text: "Cancel",
@@ -437,6 +457,7 @@ const BuySell = (props) => {
       </View>
     );
   }
+
   if (clientDropDown.length === 0) {
     return (
       <View style={styles.centered}>
@@ -455,112 +476,151 @@ const BuySell = (props) => {
                 <View
                   style={{
                     borderColor: Colors.positive,
-                    borderWidth: 2,
-                    width: "50%",
-                    borderRadius: 10,
-                    overflow: "hidden",
                   }}
                 >
-                  <Picker
-                    onValueChange={changeItemHandler}
-                    selectedValue={security}
-                  >
-                    {securityDropDown.map((item, index) => (
-                      <Picker.Item
-                        label={item.label}
-                        value={item.value}
-                        key={index}
-                      />
-                    ))}
-                  </Picker>
+                  <View>
+                    <Text
+                      style={{ backgroundColor: Colors.positive }}
+                      onPress={() => console.log("Pressed")}
+                    >
+                      {security}
+                    </Text>
+                    <Text>{companyName}</Text>
+                  </View>
                 </View>
               </View>
+
               <View style={styles.companyTitle}>
                 <Text style={styles.title}>{companyName}</Text>
               </View>
               <View>
                 <Text></Text>
               </View>
-              <Card style={styles.subContainer}>
+              <View style={styles.subContainer}>
                 <View style={styles.column}>
-                  <View>
-                    <Picker
-                      selectedValue={
-                        client === ""
-                          ? changeClientHandler(clientDropDown[0].value)
-                          : client
-                      }
-                      onValueChange={changeClientHandler}
-                    >
-                      {clientDropDown.map((item, index) => (
-                        <Picker.Item
-                          label={item.label}
-                          value={item.value}
-                          key={index}
-                        />
-                      ))}
-                    </Picker>
-                  </View>
-                  <View>
-                    <TitleText>Price</TitleText>
-                    <TextInput
-                      style={{
-                        borderBottomColor: Colors.primary,
-                        borderBottomWidth: 2,
-                      }}
-                      onChangeText={priceHandler}
-                      keyboardType="numeric"
-                    />
-                    <TitleText>Buying Power</TitleText>
-                    <Text>{buyPow}</Text>
-                    <TitleText>Commission</TitleText>
-                    <Text>{commision}</Text>
-                  </View>
-                </View>
-                <View style={styles.column}>
-                  <View>
-                    {bOrS === "Buy" ? (
+                  <View style={styles.pickToggle}>
+                    <View style={styles.pickT}>
+                      {clientDropDown.length !== 0 ? (
+                        <Select
+                          size="large"
+                          status="basic"
+                          selectedIndex={selectedIndex}
+                          onSelect={(index) => {
+                            setSelectedIndex(index);
+                            changeItemHandler(
+                              clientDropDown[index.row].value,
+                              clientDropDown[index.row].label
+                            );
+                          }}
+                          value={
+                            displayValue === ""
+                              ? changeItemHandler(
+                                  clientDropDown[selectedIndex.row].value,
+                                  clientDropDown[selectedIndex.row].label
+                                )
+                              : displayValue
+                          }
+                        >
+                          {clientDropDown.map(renderOption)}
+                        </Select>
+                      ) : (
+                        <View style={styles.centered}>
+                          <ActivityIndicator
+                            size="large"
+                            color={Colors.primary}
+                          />
+                        </View>
+                      )}
                       <Picker
                         selectedValue={
-                          buySell === "" ? buySellPickerHandler("1") : buySell
+                          client === ""
+                            ? changeClientHandler(clientDropDown[0].value)
+                            : client
                         }
-                        onValueChange={buySellPickerHandler}
+                        onValueChange={changeClientHandler}
                       >
-                        <Picker.Item label={"Buy"} value={"1"} />
-                        <Picker.Item label={"Sell"} value={"2"} />
+                        {clientDropDown.map((item, index) => (
+                          <Picker.Item
+                            label={item.label}
+                            value={item.value}
+                            key={index}
+                          />
+                        ))}
                       </Picker>
-                    ) : (
-                      <Picker
-                        selectedValue={
-                          buySell === "" ? buySellPickerHandler("2") : buySell
-                        }
-                        onValueChange={buySellPickerHandler}
-                      >
-                        <Picker.Item label={"Buy"} value={"1"} />
-                        <Picker.Item label={"Sell"} value={"2"} />
-                      </Picker>
-                    )}
+                    </View>
+                    <View style={styles.pickT}>
+                      {bOrS === "Buy" ? (
+                        <View style={{ width: "100%" }}>
+                          <Toggle
+                            style={styles.toggle}
+                            status={buySell ? "success" : "danger"}
+                            checked={buySell}
+                            onChange={onCheckedChange}
+                          >
+                            {buySell ? (
+                              <Text style={{ color: Colors.positive }}>
+                                Buy
+                              </Text>
+                            ) : (
+                              <Text style={{ color: Colors.negative }}>
+                                Sell
+                              </Text>
+                            )}
+                          </Toggle>
+                        </View>
+                      ) : (
+                        <View style={{ width: "100%" }}>
+                          <Toggle
+                            style={styles.toggle}
+                            status="primary"
+                            checked={buySell}
+                            onChange={onCheckedChange}
+                          >
+                            {buySell ? "Buy" : "Sell"}
+                          </Toggle>
+                        </View>
+                      )}
+                    </View>
                   </View>
-                  <View>
-                    <TitleText>Quantity</TitleText>
-                    <TextInput
-                      style={{
-                        borderBottomColor: Colors.primary,
-                        borderBottomWidth: 2,
-                      }}
-                      onChangeText={quantityHandler}
-                      keyboardType="number-pad"
-                    />
-                    <TitleText>Order Value</TitleText>
-                    <Text>{orderValue}</Text>
-                    <TitleText>Net Value</TitleText>
-                    <Text>{netValue}</Text>
+                  <View style={styles.botStyle}>
+                    <View style={styles.botIn}>
+                      <Text>Price</Text>
+                      <TextInput
+                        style={{
+                          borderBottomColor: Colors.primary,
+                          borderBottomWidth: 2,
+                        }}
+                        onChangeText={priceHandler}
+                        keyboardType="numeric"
+                      />
+                      <Text>Buying Power</Text>
+                      <Text>{buyPow}</Text>
+                      <Text>Commission</Text>
+                      <Text>{commision}</Text>
+                    </View>
+                    <View style={{ width: "2%" }} />
+                    <View style={styles.botIn}>
+                      <Text>Quantity</Text>
+                      <TextInput
+                        style={{
+                          borderBottomColor: Colors.primary,
+                          borderBottomWidth: 2,
+                        }}
+                        onChangeText={quantityHandler}
+                        keyboardType="number-pad"
+                      />
+                      <Text>Order Value</Text>
+                      <Text>{orderValue}</Text>
+                      <Text>Net Value</Text>
+                      <Text>{netValue}</Text>
+                    </View>
                   </View>
                 </View>
-              </Card>
-              <Card style={styles.subContainer}>
-                <View style={styles.column}>
-                  <TitleText>TIF:</TitleText>
+                <View style={styles.column}></View>
+              </View>
+              <View style={styles.subContainer}>
+                <View style={styles.col}>
+                  <Text>TIF:</Text>
                   {tifDropDown.length !== 0 && (
                     <Picker
                       selectedValue={
@@ -578,8 +638,8 @@ const BuySell = (props) => {
                     </Picker>
                   )}
                 </View>
-                <View style={styles.column}>
-                  <TitleText>TIF Days:</TitleText>
+                <View style={styles.col}>
+                  <Text>TIF Days:</Text>
                   {tifDropDownDays.length !== 0 && (
                     <Picker
                       selectedValue={
@@ -601,11 +661,11 @@ const BuySell = (props) => {
                     </Picker>
                   )}
                   <Button
-                    title={buySell === "1" ? "Buy" : "Sell"}
+                    title={buySell ? "Buy" : "Sell"}
                     onPress={buySellAlertHandler}
                   />
                 </View>
-              </Card>
+              </View>
             </View>
           </TouchableWithoutFeedback>
         </View>
@@ -619,6 +679,21 @@ const BuySell = (props) => {
 };
 
 const styles = StyleSheet.create({
+  pickT: {
+    width: "50%",
+  },
+  botStyle: {
+    width: "100%",
+    flexDirection: "row",
+  },
+  botIn: {
+    width: "48%",
+  },
+  pickToggle: {
+    flexDirection: "row",
+    width: "100%",
+    alignItems: "center",
+  },
   centered: {
     flex: 1,
     justifyContent: "center",
@@ -627,26 +702,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  toggle: { marginVertical: 12 },
   cardContainer: {
     flexDirection: "row",
   },
   pickerContainer: {
     width: "100%",
-    alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "aqua",
     paddingVertical: 5,
   },
   contentContainer: {
     flex: 1,
   },
   subContainer: {
-    width: "98%",
+    width: "100%",
     flexDirection: "row",
     marginHorizontal: 5,
     marginVertical: 15,
     paddingHorizontal: 2,
   },
   column: {
+    padding: 5,
+  },
+  col: {
     width: "50%",
     padding: 5,
   },

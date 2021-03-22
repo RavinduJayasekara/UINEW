@@ -19,7 +19,22 @@ const MarketDepth = (props) => {
   const [orderBooktotalAsk, setOrderBookTotalAsk] = useState(0);
   const [orderBooktotalBids, setOrderBookTotalBids] = useState(0);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const security = props.route.params.security;
+  const security = props.route.params.props.security;
+  const cN = props.route.params.props.companyname;
+  const tP = props.route.params.props.tradeprice;
+  const nC = props.route.params.props.netchange;
+  const pC = props.route.params.props.perchange;
+
+  const buyHandler = (sec, cName, tRp, nCh, pCh) => {
+    props.navigation.navigate("BuySell", {
+      bOrS: "Buy",
+      securityCode: sec,
+      securityName: cName,
+      tradeP: tRp,
+      netC: nCh,
+      perC: pCh,
+    });
+  };
 
   const getOrderBook = useCallback(async (link) => {
     try {
@@ -107,8 +122,12 @@ const MarketDepth = (props) => {
   return (
     <Layout style={{ flex: 1 }}>
       <Layout style={styles.secContainer}>
-        <Text style={styles.secText}>{props.route.params.security}</Text>
-        <Button status="success" size="small">
+        <Text style={styles.secText}>{props.route.params.props.security}</Text>
+        <Button
+          status="success"
+          size="small"
+          onPress={buyHandler.bind(this, security, cN, tP, nC, pC)}
+        >
           Buy
         </Button>
       </Layout>

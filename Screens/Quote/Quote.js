@@ -11,6 +11,7 @@ const DownIcon = () => (
 );
 
 const Quote = (props) => {
+
   let bPColor = "",
     tPColor = "",
     tCColor = "",
@@ -18,12 +19,19 @@ const Quote = (props) => {
 
   const sec = props.route.params.security;
   const cN = props.route.params.companyname;
+  const tP = props.route.params.tradeprice;
+  const nC = props.route.params.netchange;
+  const pC = props.route.params.perchange;
 
-  const buyHandler = (sec, cName) => {
+  const buyHandler = (sec, cName, tRp, nCh, pCh) => {
+
     props.navigation.navigate("BuySell", {
       bOrS: "Buy",
       securityCode: sec,
       securityName: cName,
+      tradeP: tRp,
+      netC: nCh,
+      perC: pCh,
     });
   };
 
@@ -67,7 +75,7 @@ const Quote = (props) => {
         <Button
           size="small"
           status="success"
-          onPress={buyHandler.bind(this, sec, cN)}
+          onPress={buyHandler.bind(this, sec, cN, tP, nC, pC)}
         >
           BUY
         </Button>

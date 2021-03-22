@@ -24,7 +24,6 @@ import {
   BottomNavigation,
   BottomNavigationTab,
 } from "@ui-kitten/components";
-import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import TopStocks from "../Screens/Market/TopStocks";
 import MarketInfo from "../Screens/Market/MarketInfo";
@@ -299,25 +298,24 @@ const QuoteSNav = (props) => {
         name={"Quote"}
         component={Quote}
         initialParams={{
-          security: props.route.params.security,
-          companyname: props.route.params.companyname,
-          tradeprice: props.route.params.tradeprice,
-          perchange: props.route.params.perchange,
-          netchange: props.route.params.netchange,
-          bidprice: props.route.params.bidprice,
-          askprice: props.route.params.askprice,
-          bidqty: props.route.params.bidqty,
-          askqty: props.route.params.askqty,
-          vwap: props.route.params.vwap,
-          lowpx: props.route.params.lowpx,
-          highpx: props.route.params.highpx,
-          totvolume: props.route.params.totvolume,
-          tottrades: props.route.params.tottrades,
-          totturnover: props.route.params.totturnover,
-          lasttradedtime: props.route.params.lasttradedtime,
+          security: props.route.params.props.security,
+          companyname: props.route.params.props.companyname,
+          tradeprice: props.route.params.props.tradeprice,
+          perchange: props.route.params.props.perchange,
+          netchange: props.route.params.props.netchange,
+          bidprice: props.route.params.props.bidprice,
+          askprice: props.route.params.props.askprice,
+          bidqty: props.route.params.props.bidqty,
+          askqty: props.route.params.props.askqty,
+          vwap: props.route.params.props.vwap,
+          lowpx: props.route.params.props.lowpx,
+          highpx: props.route.params.props.highpx,
+          totvolume: props.route.params.props.totvolume,
+          tottrades: props.route.params.props.tottrades,
+          totturnover: props.route.params.props.totturnover,
+          lasttradedtime: props.route.params.props.lasttradedtime,
         }}
       />
-      <QuoteS.Screen name={"BuySell"} component={BuySell} />
     </QuoteS.Navigator>
   );
 };
@@ -341,7 +339,7 @@ const QuoteTabNavigator = (props) => {
         name={"MarketDepth"}
         component={MarketDepth}
         initialParams={{
-          security: props.route.params.params.security,
+          props: props.route.params.params,
         }}
       />
     </QuoteTab.Navigator>
@@ -363,6 +361,12 @@ const WStackNav = () => (
       initialParams={{ hName: "Watch List" }}
       options={CommonHeaderBack}
       component={QuoteTabNavigator}
+    />
+    <WatchStack.Screen
+      name={"BuySell"}
+      component={BuySell}
+      options={CommonHeaderBack}
+      initialParams={{ hName: "Trades" }}
     />
   </WStack.Navigator>
 );

@@ -68,32 +68,6 @@ const PortfolioSummary = (props) => {
   // let displayValue = "";
   const [displayValue, setDisplayValue] = useState("");
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  const fadeIn = () => {
-    // Will change fadeAnim value to 1 in 5 seconds
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 5000,
-    }).start();
-  };
-
-  const fadeOut = () => {
-    // Will change fadeAnim value to 0 in 5 seconds
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 5000,
-    }).start();
-  };
-
-  const mV = () => {
-    setVisible(true);
-  };
-
-  const miV = () => {
-    setVisible(false);
-  };
-
   const allClients = useSelector((state) => state.loadingclients.allClients);
 
   const clientArray = [];
@@ -185,30 +159,17 @@ const PortfolioSummary = (props) => {
     const cInitials = selectedClient.initials;
 
     const linkUrl = generateLink(cCode, bId, cLastName, cInitials);
-    // await
-    // fetchPortfolioDetails(linkUrl);a
 
     console.log(itemDataLabel, itemDataVal);
 
-    // setTimeout(() => {
     await fetchPortfolioDetails(linkUrl)
       .then(() => setVisible(false))
       .catch((e) => console.log(e));
-    // .then(() => setVisible(false))
-    // .catch((e) => console.log(e));
-    // console.log("Ravindu");
-    // }, 5000);
   };
 
   const renderOption = (itemData) => (
     <SelectItem title={itemData.label} key={itemData.label} />
   );
-
-  // const func1 = () => {
-  //   setVisible(false);
-  //   setLoaded(false);
-  //   console.log("ravindu");
-  // };
 
   const renderItem = (itemData) => {
     const netGL = parseFloat(itemData.item.netGain).toFixed(2);
