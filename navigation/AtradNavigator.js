@@ -35,6 +35,7 @@ import OrderList from "../Screens/Portfolio/OrderList";
 import { useDispatch } from "react-redux";
 import * as ScreenOrientation from "expo-screen-orientation";
 import BuySell from "../Screens/Quote/BuySell";
+import Search from "../Screens/Search/Search";
 
 const changeScreenOrientationToPortrait = async () => {
   await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
@@ -64,7 +65,7 @@ const CommonHeader = {
 
     const renderSearchAction = () => (
       <TopNavigationAction
-        onPress={() => console.log(scene.route)}
+        onPress={() => navigation.navigate("Search")}
         icon={renderSearchIcon}
       />
     );
@@ -393,6 +394,18 @@ const PStackNav = () => (
       component={PortfolioTabNavigator}
     />
   </PStack.Navigator>
+);
+
+const SearchStack = createStackNavigator();
+
+const SearchStackNav = () => (
+  <SearchStack.Navigator screenOptions={CommonHeaderBack}>
+    <SearchStack.Screen
+      name={"Search"}
+      component={Search}
+      initialParams={{ hName: "Search" }}
+    />
+  </SearchStack.Navigator>
 );
 
 // const UIDrawer = ({ navigation, state }) => {

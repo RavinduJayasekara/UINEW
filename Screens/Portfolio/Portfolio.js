@@ -18,6 +18,7 @@ import {
 } from "@ui-kitten/components";
 import PTile from "../../components/ATComponents/PTile";
 import { useSelector } from "react-redux";
+import SpinnerOverLay from "react-native-loading-spinner-overlay";
 
 const generateLink = (cCode, bId, cLastName, cInitials) => {
   const clientCodeSplitArray = cCode.split("/");
@@ -162,9 +163,8 @@ const PortfolioSummary = (props) => {
 
     console.log(itemDataLabel, itemDataVal);
 
-    await fetchPortfolioDetails(linkUrl)
-      .then(() => setVisible(false))
-      .catch((e) => console.log(e));
+    await fetchPortfolioDetails(linkUrl);
+    setVisible(false);
   };
 
   const renderOption = (itemData) => (
@@ -194,6 +194,14 @@ const PortfolioSummary = (props) => {
       />
     );
   };
+
+  useEffect(() => {
+    if (visible) {
+      console.log("loaded");
+    } else {
+      console.log("not loaded");
+    }
+  }, [visible]);
 
   const ListHeaderComponent = () => (
     <Layout>
@@ -225,16 +233,11 @@ const PortfolioSummary = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* <Animated.View
-        style={[
-          styles.fadingContainer,
-          {
-            opacity: fadeAnim, // Bind opacity to animated value
-          },
-        ]}
-      >
-        <Text style={styles.fadingText}>Fading View!</Text> */}
-
+      <SpinnerOverLay
+        visible={visible}
+        textContent={"Loading..."}
+        textStyle={styles.spinnerTextStyle}
+      />
       <Layout style={styles.container}>
         <Layout style={{ marginVertical: 5 }}>
           {clientArray.length !== 0 ? (
@@ -369,13 +372,13 @@ const PortfolioSummary = (props) => {
         />
       </Layout>
       {/* </Animated.View> */}
-      <Modal
+      {/* <Modal
         visible={visible}
         backdropStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
       >
         <Spinner size="large" />
         <Text>Loading</Text>
-      </Modal>
+      </Modal> */}
     </View>
   );
 };
@@ -386,6 +389,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+  },
+  spinnerTextStyle: {
+    color: "#FFF",
   },
   fadingContainer: {
     paddingVertical: 8,

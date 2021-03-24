@@ -18,6 +18,7 @@ import {
   SelectItem,
   Spinner,
 } from "@ui-kitten/components";
+import SpinnerOverLay from "react-native-loading-spinner-overlay";
 
 import Portfolio from "../../Links/Portfolio";
 import Links from "../../Links/Links";
@@ -201,7 +202,8 @@ const AccountSummary = (props) => {
 
     const generalLink = generateLink(cCode, bId, cAcnId);
 
-    await getInformation(generalLink).then(() => setVisible(false));
+    await getInformation(generalLink);
+    setVisible(false);
     // .then(() => setVisible(false))
     // .catch((e) => console.log(e));
 
@@ -233,6 +235,11 @@ const AccountSummary = (props) => {
 
   return (
     <View style={styles.container}>
+      <SpinnerOverLay
+        visible={visible}
+        textContent={"Loading..."}
+        textStyle={styles.spinnerTextStyle}
+      />
       <Layout style={styles.container}>
         <Layout style={styles.dropDownContainer} level="1">
           {clientArray.length !== 0 ? (
@@ -423,7 +430,7 @@ const AccountSummary = (props) => {
         </Layout>
       </Layout>
 
-      <Modal visible={visible}>
+      {/* <Modal visible={visible}>
         <View
           style={{
             flex: 1,
@@ -435,7 +442,7 @@ const AccountSummary = (props) => {
           <Spinner size="large" />
           <Text>Now Loading</Text>
         </View>
-      </Modal>
+      </Modal> */}
     </View>
   );
 };
@@ -462,6 +469,9 @@ const styles = StyleSheet.create({
   },
   linearGrad: {
     flex: 1,
+  },
+  spinnerTextStyle: {
+    color: "#FFF",
   },
 });
 

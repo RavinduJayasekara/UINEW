@@ -14,7 +14,7 @@ import moment from "moment";
 import MarketInfoLink from "../../Links/MarketInfo";
 import Links from "../../Links/Links";
 import AnnTile from "../../components/ATComponents/AnnTile";
-import { acc } from "react-native-reanimated";
+import SpinnerOverlay from "react-native-loading-spinner-overlay";
 
 const generateLinkForSectorData = (secId) => {
   return (
@@ -46,7 +46,7 @@ const MarketInfo = (props) => {
   const [announcementArray, setAnnouncementArray] = useState();
   const announcements = [];
   let changeOrPerChangeColor = "";
-  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   const getMarketInfo = useCallback(async (link) => {
     try {
@@ -382,7 +382,11 @@ const MarketInfo = (props) => {
 
   return (
     <Layout style={styles.container}>
-      {/* {mounted ? ( */}
+      <SpinnerOverlay
+        visible={visible}
+        textContent={"Loading..."}
+        textStyle={styles.spinnerTextStyle}
+      />
       <Layout>
         <Layout style={styles.marketStatusContainer}>
           <Layout style={styles.mkStatContainer}>

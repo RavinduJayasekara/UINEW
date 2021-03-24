@@ -5,9 +5,9 @@ export const GET_ALL_SECURITIES = "GET_ALL_SECURITIES";
 export const GET_JUST_SEC = "GET_JUST_SEC";
 export const GET_ALL_FAVOURITES = "GET_ALL_FAVOURITES";
 
-export const fetchDropDownAllSecurities = () => {
+export const fetchDropDownAllSecurities = (val) => {
   return async (dispatch) => {
-    const response = await fetch(Links.mLink + Watch.fullWatch);
+    const response = await fetch(Links.mLink + Watch.fullWatch + val);
     if (!response.ok) {
       throw new Error("Something went wrong!");
     }

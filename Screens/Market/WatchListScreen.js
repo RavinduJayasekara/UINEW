@@ -6,13 +6,20 @@ import * as allSecActions from "../../store/action/dropdownsecurities";
 import { SwipeListView } from "react-native-swipe-list-view";
 import SecTile from "../../components/ATComponents/SecTile";
 import Links from "../../Links/Links";
-
+import SpinnerOverlay from "react-native-loading-spinner-overlay";
 const WatchList = (props) => {
   const allSec = useSelector((state) => state.allSecurities.securityDetails);
   const justSec = useSelector((state) => state.allSecurities.justSecurities);
   const dispatch = useDispatch();
   const watchId = useSelector((state) => state.auth.watchId);
   const [favS, setFavS] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [fWacthId, setFWatchId] = useState("0");
+
+  if (allSec.length !== 0) {
+    console.log("allSec[0].id", allSec[0].id);
+    console.log("fWacthId", fWacthId);
+  }
 
   const getFavs = async (userWatchId) => {
     const response = await fetch(
@@ -31,20 +38,27 @@ const WatchList = (props) => {
   };
 
   const getAll = async () => {
-    await dispatch(allSecActions.fetchDropDownAllSecurities());
+    setVisible(true);
+    await dispatch(allSecActions.fetchDropDownAllSecurities(fWacthId));
     await getFavs.bind(this, watchId);
+    setVisible(false);
   };
 
   useEffect(() => {
     props.navigation.addListener("focus", getAll);
-  }, [getAll, getFavs]);
-
-  // getFavs(watchId);
-
-  const ref = createRef();
+    if (allSec.length > 0) {
+      console.log("fWacthId in use effect", fWacthId);
+      setFWatchId(allSec[0].id);
+    }
+  }, [getAll, setFWatchId]);
 
   return (
     <View style={styles.container}>
+      <SpinnerOverlay
+        visible={visible}
+        textContent={"Loading..."}
+        textStyle={styles.spinnerTextStyle}
+      />
       <List
         data={allSec}
         renderItem={(itemData) => (
@@ -89,16 +103,14 @@ const WatchList = (props) => {
   );
 };
 
-export const screenOptions = (navData) => {
-  return {};
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   tile: { flex: 1, flexDirection: "row", height: 150, width: "100%" },
-  lowBack: {},
+  spinnerTextStyle: {
+    color: "#FFF",
+  },
 });
 
 export default WatchList;

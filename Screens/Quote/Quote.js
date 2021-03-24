@@ -11,7 +11,6 @@ const DownIcon = () => (
 );
 
 const Quote = (props) => {
-
   let bPColor = "",
     tPColor = "",
     tCColor = "",
@@ -24,7 +23,6 @@ const Quote = (props) => {
   const pC = props.route.params.perchange;
 
   const buyHandler = (sec, cName, tRp, nCh, pCh) => {
-
     props.navigation.navigate("BuySell", {
       bOrS: "Buy",
       securityCode: sec,
